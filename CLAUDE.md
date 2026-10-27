@@ -13,7 +13,7 @@ Two Python tools. `decompile.py` turns `Transformice.swf` into an editable Actio
 - **Keep the compiler's error format.** `decompiler/project.py` `build()` runs `build.py` and parses its output with `ERROR_RE` (`file.as(line): col: N Error: message`) for the `fix` stage. Don't reformat, wrap or reorder those lines.
 - **Line endings:** `.py` and docs are LF, generated `.as` files are CRLF (`.gitattributes`, `export.py`).
 - **No `.vscode/` folders,** and no instructions about running a game server in the docs.
-- **Commits:** the repository's local Git identity is the owner's (`yatsuki0`); don't change it. No AI attribution lines (`Co-Authored-By`) in commit messages. Don't push, and don't rewrite history, unless the user asks.
+- **Commits:** the repository's local Git identity is the owner's (`yatsuki0`); don't change it. Don't push, and don't rewrite history, unless the user asks.
 
 ## Map
 
