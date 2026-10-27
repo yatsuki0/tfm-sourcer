@@ -104,6 +104,7 @@ Two differences are expected and harmless:
 
 | Tool | Version used |
 |---|---|
+| Operating system | Windows 11 (the only one tested) |
 | JPEXS FFDec | 26.4.0 |
 | Apache Flex SDK | 4.10.0, with Adobe's `playerglobal.swc` 32.0 |
 | Java | 1.8.0_202 |
@@ -114,6 +115,7 @@ Two differences are expected and harmless:
 
 - **Testing depth.** Startup, connection, login screen and a play session were checked. There's no systematic test of every feature, and bugs like the missing `break` can hide behind swallowed errors. The debug method in [debugging.md](debugging.md) is how to find them.
 - **Other game versions.** Only this version was tested. The fixers are written as patterns, but a new version may bring new decompiler mistakes; the `fix` stage then stops and names the file and line.
+- **Windows only.** Everything ran on Windows 11. The code has Linux and macOS branches (`mxmlc` instead of `mxmlc.bat`, stopping FFDec), but they have never been run.
 - **VS Code compiling** is configured but wasn't tested.
 - **FFDec versions.** Only 26.4.0 was tested. Older versions wrote CRLF line endings and fewer junk statements, both of which the pipeline handles.
 

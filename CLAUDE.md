@@ -58,5 +58,6 @@ For the rest you need `Transformice.swf` in the repository folder and `python de
 
 ## Environment notes
 
-- Windows. The shell may be Git Bash or PowerShell. Bash heredocs and `python -c` strings can mangle backslashes (`\t`, `\b`), so write scripts to a file, or use an editor tool, for any text with backslashes.
+- Windows only, as the README says. Keep the existing Linux and macOS branches working in principle, but don't claim support for them until they've actually been run there.
+- The shell may be Git Bash or PowerShell. Bash heredocs and `python -c` strings can mangle backslashes (`\t`, `\b`), so write scripts to a file, or use an editor tool, for any text with backslashes.
 - Machine-specific paths (Flex SDK, FFDec, Java, the Flash Player projector) live only in `tfm-sourcer.config.json` or with the user. Never hard-code them in the code or the docs.

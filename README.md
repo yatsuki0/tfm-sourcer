@@ -11,6 +11,8 @@ What was found along the way, how it was verified and what's still open: [resear
 
 ## Requirements
 
+**Windows only for now.** Everything was built and tested on Windows 11, and the commands in this README are for the Windows command prompt. The code has a few branches for Linux and macOS (for example `mxmlc` instead of `mxmlc.bat`), but they have never been run. The unit tests are the exception: they don't depend on the OS.
+
 | Tool | Version | Needed by | Notes |
 |---|---|---|---|
 | Python | 3.8+ | both tools | Standard library only, nothing to install with pip |
