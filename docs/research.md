@@ -93,6 +93,9 @@ The order can be recovered without reading that code at all. The game's body is 
 | Runtime (release projector 32.0.0.101) | Opens, connects to the local server, login screen complete |
 | Runtime (debug projector 32.0.0.403) | Connects, no errors logged, for both the plain and the readable source |
 | Gameplay | Played on the local server with the plain source, worked; the readable source wasn't played |
+| Packed client (2026-10-27) | Unpacked, decompiled, fixed and built with no manual step and no new fixer. The order found from the zlib stream matches the loader's decoded code |
+| Repacking | Packing the original game back into the loader reproduces the downloaded file byte for byte |
+| Runtime, packed client | Both the rebuilt game (`bin\Transformice.swf`) and the repacked one (`bin\packed\Transformice.swf`) reach the login screen in Flash Player 32 (readable source) |
 
 Two differences are expected and harmless:
 
@@ -125,7 +128,6 @@ Two differences are expected and harmless:
 
 - **Testing depth.** Startup, connection, login screen and a play session were checked. There's no systematic test of every feature, and bugs like the missing `break` can hide behind swallowed errors. The debug method in [debugging.md](debugging.md) is how to find them.
 - **Other game versions.** Only this version was tested. The fixers are written as patterns, but a new version may bring new decompiler mistakes; the `fix` stage then stops and names the file and line.
-- **Packed builds in the game.** `build.py --pack` output was verified at the file level (the original repacks byte for byte, and a rebuilt game unpacks back out of it), but not yet run in Flash Player.
 - **Other packers.** Unpacking handles a loader whose chunks join into a compressed (`CWS`) SWF, which is what the 2026-10-27 client uses. A future client could pack differently; `decompile.py info` shows whether a SWF is recognized as packed.
 - **Windows only.** Everything ran on Windows 11. The code has Linux and macOS branches (`mxmlc` instead of `mxmlc.bat`, stopping FFDec), but they have never been run.
 - **VS Code compiling** is configured but wasn't tested.
