@@ -49,7 +49,10 @@ def install_flex(cfg):
     archive = os.path.join(cfg.work, os.path.basename(FLEX_URL))
     if not os.path.isfile(archive) or md5(archive) != FLEX_MD5:
         print('Downloading %s (70 MB)...' % FLEX_URL)
-        urllib.request.urlretrieve(FLEX_URL, archive)
+        try:
+            download(FLEX_URL, archive, cfg.quiet)
+        except OSError as e:
+            raise SystemExit('Could not download the Flex SDK (%s). Run setup again to retry.' % e)
     if md5(archive) != FLEX_MD5:
         raise SystemExit('Checksum mismatch for %s' % archive)
     print('Extracting to %s...' % cfg.flex_sdk)
@@ -69,7 +72,7 @@ def install_playerglobal(cfg):
         return 'copied from %s' % cfg.playerglobal
     print('Downloading %s...' % PLAYERGLOBAL_URL)
     try:
-        urllib.request.urlretrieve(PLAYERGLOBAL_URL, target)
+        download(PLAYERGLOBAL_URL, target, cfg.quiet)
     except OSError as e:
         raise SystemExit('Could not download playerglobal.swc (%s).\nSet "playerglobal" in tfm-sourcer.config.json to a '
                          'local copy; every Harman AIR SDK has one in frameworks/libs/player/32.0/.' % e)
@@ -94,6 +97,36 @@ def configure(cfg):
             fh.write(new)
         return 'configured for Flash Player 32'
     return 'already configured'
+
+
+def download(url, path, quiet=False, timeout=60):
+    """Download to `path`, showing progress. The data goes to `path + '.part'` first, so an
+    interrupted download never looks complete, and a stalled connection fails after `timeout`
+    seconds instead of hanging. archive.apache.org is often slow, so progress matters."""
+    part = path + '.part'
+    with urllib.request.urlopen(url, timeout=timeout) as response, open(part, 'wb') as fh:
+        total = int(response.headers.get('Content-Length') or 0)
+        done = 0
+        while True:
+            chunk = response.read(1 << 16)
+            if not chunk:
+                break
+            fh.write(chunk)
+            done += len(chunk)
+            if not quiet:
+                print('\r  %s' % progress(done, total), end='', flush=True)
+    if not quiet:
+        print()
+    if total and done != total:
+        raise OSError('incomplete download: %d of %d bytes' % (done, total))
+    os.replace(part, path)
+
+
+def progress(done, total):
+    mb = 1024 * 1024
+    if not total:
+        return '%.1f MB' % (done / mb)
+    return '%.1f of %.1f MB (%d%%)' % (done / mb, total / mb, done * 100 // total)
 
 
 def md5(path):
