@@ -1,0 +1,7 @@
+{
+	"swf": "Transformice.swf",
+	"project": "transformice",
+	"ffdec": "C:/Program Files (x86)/FFDec/ffdec-cli.exe",
+	"flex_sdk": "../flex/sdk-4.10.0",
+	"java_home": ""
+}
