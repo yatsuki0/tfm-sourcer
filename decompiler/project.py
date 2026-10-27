@@ -18,23 +18,25 @@ CompileError = collections.namedtuple('CompileError', 'file line col message')
 
 
 class Target:
-    """Main class and stage settings, read from the original SWF."""
+    """Main class and stage settings, read from the original game SWF (the unpacked one for a
+    packed SWF: the loader has its own frame rate). original_size is the size of the file as
+    given, the loader for a packed SWF, since the client reports the size of the outer SWF."""
 
-    def __init__(self, swf_path):
-        swf = Swf(swf_path)
+    def __init__(self, cfg):
+        swf = Swf(cfg.game_swf)
         self.main_class = names.from_raw(swf.symbol_classes()[0])
         self.frame_rate = swf.frame_rate
         self.background = swf.background() or '#ffffff'
         self.swf_version = swf.version
         self.width = swf.width
         self.height = swf.height
-        self.original_size = swf.file_size
+        self.original_size = os.path.getsize(cfg.swf)
 
 
 def write_asconfig(cfg):
     """asconfig.json in the project folder, for build.py and the VS Code ActionScript & MXML
     extension. Paths are relative to the project folder, which is what you open in VS Code."""
-    target = Target(cfg.swf)
+    target = Target(cfg)
 
     def relative(path):
         return os.path.relpath(path, cfg.project).replace(os.sep, '/')

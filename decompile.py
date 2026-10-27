@@ -18,7 +18,7 @@ import argparse
 import os
 import sys
 
-from decompiler import config, deobfuscate, export, fixes, project, readable, setup_sdk
+from decompiler import config, deobfuscate, export, fixes, project, readable, setup_sdk, unpack
 from decompiler.names import from_raw
 from decompiler.swf import Swf
 
@@ -86,6 +86,11 @@ def cmd_info(cfg, args):
     print('\nTags:')
     for code, name, count, size in swf.tag_summary():
         print('  %3d %-28s x%-3d %10d bytes' % (code, name, count, size))
+    packed = unpack.find_game(swf)
+    if packed:
+        order, game = packed
+        print('\nPacked: a loader whose %d binary chunks join into the game SWF (%d bytes).' % (len(order), len(game)))
+        print('Chunk order: %s. decompile.py export unpacks it automatically.' % ' '.join(map(str, order)))
 
 
 def main():

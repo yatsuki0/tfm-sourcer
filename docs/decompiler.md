@@ -9,11 +9,36 @@ Transformice.swf ──export──▶ transformice/src/ (obfuscated) ──deob
                  ──build.py──▶ transformice/bin/Transformice.swf
 ```
 
+## Packed SWFs
+
+The client as downloaded is **packed**: `Transformice.swf` is a small loader (8 KB of code), and the game is a second SWF cut into 12 pieces, stored as binary-data chunks inside it. At runtime the loader joins the chunks in a fixed, shuffled order and runs the result with `Loader.loadBytes`:
+
+```actionscript
+bytes.writeBytes(new ChunkC());     // the loader hides these names behind string
+bytes.writeBytes(new ChunkB());     // obfuscation: every string is built from
+...                                 // one-character functions over an alphabet
+loader.loadBytes(bytes, context);   // context.allowCodeImport = true
+```
+
+There is no encryption. A dumped SWF (for example made with a SWF dumper while the game runs) is the joined game SWF itself, saved uncompressed.
+
+[decompiler/unpack.py](../decompiler/unpack.py) recovers the game without reading the loader's code, since that obfuscation may change between versions. The game SWF is compressed (`CWS`), so its body is one zlib stream. Starting from the chunk that begins with `CWS`, only the right next chunk continues the stream without a decompression error. The order is proven at the end: zlib checks the stream's checksum, and the unpacked length must match the SWF header. On the 2026-10-27 client, the order found this way (`3 2 10 12 7 8 1 5 4 9 11 6`) is the same as the one in the loader's decoded code.
+
+The export stage does this automatically. `python decompile.py info` shows whether a SWF is packed. For a packed SWF, the project gets a `loader/` folder:
+
+| File | What it is |
+|---|---|
+| `loader/game.swf` | The unpacked game. FFDec decompiles this one, and the build settings (60 fps) come from it, not from the loader (36 fps) |
+| `loader/loader.swf` | A copy of the original loader |
+| `loader/chunks.json` | The chunk ids in the order the loader joins them |
+
+`python build.py --pack` does the reverse. After the normal build, it cuts the new game into as many pieces as there are chunks, puts them into a copy of the original loader in that order, and writes `bin/packed/Transformice.swf`. The loader's code isn't changed or recompiled. Packing the original game back this way reproduces the downloaded `Transformice.swf` byte for byte.
+
 ## 1. export
 
 `python decompile.py export [--force]` ([decompiler/export.py](../decompiler/export.py))
 
-Runs FFDec to export the scripts, embedded binary data and fonts into `.cache/export`, then lays them out as a project:
+Unpacks the game first if the SWF is [packed](#packed-swfs). Then runs FFDec to export the scripts, embedded binary data and fonts into `.cache/export`, then lays them out as a project:
 
 | From | To |
 |---|---|

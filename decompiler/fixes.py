@@ -153,7 +153,7 @@ ERROR_FIXERS = {'Function does not return a value.': missing_return}
 
 
 def run(cfg, max_passes=5):
-    target = project.Target(cfg.swf)
+    target = project.Target(cfg)
     ctx = {'original_size': target.original_size}
     totals = dict.fromkeys((f.__name__ for f in SOURCE_FIXERS), 0)
     for path in iter_scripts(cfg.src):

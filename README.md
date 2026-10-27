@@ -57,7 +57,12 @@ What was found along the way, how it was verified and what's still open: [resear
 
 ## Decompile
 
-Copy the game's `Transformice.swf` into the repository folder (or point `swf` in the config at it), then run:
+Copy the game's `Transformice.swf` into the repository folder (or point `swf` in the config at it). Either form works:
+
+- **The client as downloaded.** It's packed: a small loader with the game cut into pieces inside it. `decompile.py` unpacks it automatically ([how](docs/decompiler.md#packed-swfs)).
+- **An already unpacked or dumped game SWF.** It's used as it is.
+
+Then run:
 
 ```bat
 python decompile.py all --readable --no-warnings
@@ -78,7 +83,7 @@ To decompile again into a project that already exists, add `--force`. It replace
 |---|---|
 | `python decompile.py setup` | Installs and configures the compiler (see [Setup](#setup)) |
 | `python decompile.py all` | Runs `export`, `deobfuscate`, `fix`, `readable` (only with `--readable`), then builds |
-| `python decompile.py export` | Decompiles the SWF with FFDec into `transformice/src`, and writes the build settings to `transformice/asconfig.json` |
+| `python decompile.py export` | Unpacks the SWF if it's packed, decompiles it with FFDec into `transformice/src`, and writes the build settings to `transformice/asconfig.json` |
 | `python decompile.py deobfuscate` | Renames the obfuscated identifiers, which aren't valid ActionScript, to valid names |
 | `python decompile.py fix` | Repairs the code FFDec decompiles wrongly, then compiles to check that it builds |
 | `python decompile.py readable` | Optional: replaces the obfuscated constants with their values ([details](docs/decompiler.md#optional-readable)) |
@@ -117,6 +122,7 @@ The compiler's output is shown as it is. Remove `--no-warnings` to also see its 
 |---|---|
 | `--debug` | Builds `Transformice-debug.swf` instead, with line numbers in error messages, for the [debug player](docs/debugging.md) |
 | `--no-warnings` | Hide the compiler's warnings |
+| `--pack` | Also write `transformice\bin\packed\Transformice.swf`: your rebuilt game packed into the original loader, like the downloaded file. Only for a project decompiled from a packed SWF |
 | `--project PATH` | Build the project in this folder instead of the one set in the config |
 | `--output PATH` | Write the built SWF to this file instead of `transformice\bin\Transformice.swf` |
 | `--sdk PATH` | Use the Flex SDK in this folder instead of the one set in the config |
@@ -141,7 +147,7 @@ Open `transformice\bin\Transformice.swf` with the Flash Player 32 projector. For
 python -m unittest
 ```
 
-These are small unit tests that run in under a second. They need nothing but Python: no FFDec, compiler or game SWF. They check the renaming scheme, each decompiler fix, the readable stage, the SWF reader, and `build.py`'s compiler arguments, all on small made-up snippets. They don't replace a full run (`python decompile.py all --force`) and checking the game in Flash Player.
+These are small unit tests that run in under a second. They need nothing but Python: no FFDec, compiler or game SWF. They check the renaming scheme, each decompiler fix, the readable stage, the SWF reader, unpacking and `--pack`, and `build.py`'s compiler arguments, all on small made-up snippets. They don't replace a full run (`python decompile.py all --force`) and checking the game in Flash Player.
 
 ## Layout
 
@@ -159,7 +165,8 @@ tfm-sourcer.config.json           your tool paths
 transformice/                     the generated project; open this folder in VS Code
   src/                              ActionScript source and embedded assets
   asconfig.json                     build settings, read from the original SWF
-  bin/                              built SWFs
+  bin/                              built SWFs (bin/packed/ with --pack)
+  loader/                           packed SWFs only: the unpacked game, the original loader, the chunk order
 .cache/                           FFDec's raw export, downloads and test builds; safe to delete
 ```
 

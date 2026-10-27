@@ -11,7 +11,9 @@ Get the Transformice game client (`Transformice.swf`) into editable ActionScript
 - The rebuilt client was played on the local server and worked (before the optional readable stage; the readable build was checked for startup, connection and errors).
 - A from-scratch run in an empty folder reproduces the committed source byte for byte.
 
-Tested on client version 1.856 (shown on the login screen).
+- The client as downloaded is packed: a small loader with the game cut into chunks. `decompile.py` unpacks it automatically, and `build.py --pack` packs a rebuilt game the same way. Repacking the original game reproduces the downloaded file byte for byte.
+
+Tested on two clients: version 1.856 (a dumped, already unpacked SWF from 2025-02-27) and the packed client downloaded on 2026-10-27. The newer one needed no new fixer.
 
 ## Starting point
 
@@ -61,7 +63,9 @@ All six are now fixed automatically by pattern, not by file or name, so the fixe
 
 ### 5. The client reports its own size to the server
 
-The handshake includes the byte length of the running SWF. The rebuilt client reports the original file's length (2,828,241) instead, so it identifies itself exactly like the original. This wasn't the cause of any failure we saw; it's kept for fidelity.
+The handshake includes the byte length of the running SWF (`stage.loaderInfo.bytes.length`). The rebuilt client reports the original file's length instead, so it identifies itself like the original. This wasn't the cause of any failure we saw; it's kept for fidelity.
+
+Which length is the original's depends on packing (finding 8). `stage.loaderInfo` belongs to the outermost SWF, so the real client reports the size of the downloaded loader (2,032,821 bytes for the 2026-10-27 client), not of the game inside it. The 2,828,241 used with the dumped 1.856 client was the dump's own size, which the real client probably never sent. The pipeline now uses the size of the SWF it was given, which is the loader for a packed client. This is reasoned from how Flash Player works, not yet checked against the official server.
 
 ### 6. The obfuscator hides every constant, and that can be undone safely
 
@@ -72,6 +76,12 @@ An optional stage undoes this: about 32,000 constants inlined, 13,600 wrappers r
 ### 7. The stage size in the old project template was wrong
 
 The project template that came with the original export said 800×800. The SWF header says 800×600. The build settings are now read from the SWF itself: main class, stage size, frame rate, background and SWF version.
+
+### 8. The downloaded client is a packed loader
+
+The `Transformice.swf` you download (2,032,821 bytes on 2026-10-27) isn't the game. It's a loader with 8 KB of code and 12 binary chunks of about 170 KB each. The loader joins the chunks in a shuffled order and runs the result, which is the real game SWF: compressed, built the same day, with the same structure as the dumped 1.856 client. There's no encryption. The loader hides its strings, including the order, behind a 64-character alphabet and one-character functions, so a static read of its code shows nothing useful until those are decoded.
+
+The order can be recovered without reading that code at all. The game's body is one zlib stream, and only the right next chunk continues it without an error, so the chunks can be chained one by one; zlib's checksum and the SWF header's length prove the result. Details: [decompiler.md](decompiler.md#packed-swfs).
 
 ## Verification
 
@@ -115,6 +125,8 @@ Two differences are expected and harmless:
 
 - **Testing depth.** Startup, connection, login screen and a play session were checked. There's no systematic test of every feature, and bugs like the missing `break` can hide behind swallowed errors. The debug method in [debugging.md](debugging.md) is how to find them.
 - **Other game versions.** Only this version was tested. The fixers are written as patterns, but a new version may bring new decompiler mistakes; the `fix` stage then stops and names the file and line.
+- **Packed builds in the game.** `build.py --pack` output was verified at the file level (the original repacks byte for byte, and a rebuilt game unpacks back out of it), but not yet run in Flash Player.
+- **Other packers.** Unpacking handles a loader whose chunks join into a compressed (`CWS`) SWF, which is what the 2026-10-27 client uses. A future client could pack differently; `decompile.py info` shows whether a SWF is recognized as packed.
 - **Windows only.** Everything ran on Windows 11. The code has Linux and macOS branches (`mxmlc` instead of `mxmlc.bat`, stopping FFDec), but they have never been run.
 - **VS Code compiling** is configured but wasn't tested.
 - **FFDec versions.** Only 26.4.0 was tested. Older versions wrote CRLF line endings and fewer junk statements, both of which the pipeline handles.

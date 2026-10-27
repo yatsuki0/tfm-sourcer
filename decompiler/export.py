@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 
-from . import project
+from . import project, unpack
 from .files import iter_scripts, read, write
 
 # FFDec gives up on a method after 60 s by default and writes a stub that throws
@@ -25,7 +25,8 @@ def run(cfg, force=False):
     shutil.rmtree(export, ignore_errors=True)
     os.makedirs(export)
 
-    print('Decompiling %s with FFDec (about 8 minutes)...' % cfg.swf)
+    unpack.run(cfg)
+    print('Decompiling %s with FFDec (about 10 minutes)...' % cfg.game_swf)
     run_ffdec(cfg, export)
 
     shutil.rmtree(cfg.src, ignore_errors=True)
@@ -61,7 +62,7 @@ def run_ffdec(cfg, export):
     position in the SWF. The packet handler (script 412 in the current client) starts early
     but finishes last, after several minutes on its own.
     """
-    args = [cfg.ffdec, '-config', FFDEC_CONFIG, '-export', 'script,binaryData,font', export, cfg.swf]
+    args = [cfg.ffdec, '-config', FFDEC_CONFIG, '-export', 'script,binaryData,font', export, cfg.game_swf]
     proc = subprocess.Popen(args, env=cfg.env(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, encoding='utf-8', errors='replace')
     log, done, start = [], 0, time.time()

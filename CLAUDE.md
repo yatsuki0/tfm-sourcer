@@ -20,9 +20,10 @@ Two Python tools. `decompile.py` turns `Transformice.swf` into an editable Actio
 | Path | What it is |
 |---|---|
 | `decompile.py` | CLI: `setup`, `all`, `export`, `deobfuscate`, `fix`, `readable`, `info`. Common flags: `--swf`, `--project`, `--quiet`, `--no-warnings` |
-| `build.py` | CLI: compiles `<project>/src` using `<project>/asconfig.json`. Flags: `--debug`, `--no-warnings`, `--project`, `--output`, `--sdk` |
+| `build.py` | CLI: compiles `<project>/src` using `<project>/asconfig.json`. Flags: `--debug`, `--no-warnings`, `--pack`, `--project`, `--output`, `--sdk`. `--pack` puts the built game into `<project>/loader/loader.swf` (`pack`, `replace_binary_data`) |
 | `decompiler/config.py` | Loads `tfm-sourcer.config.json` (creating it from the example), resolves paths, holds `quiet` and `no_warnings` |
-| `decompiler/export.py` | Stage 1: runs FFDec with raised timeouts, copies scripts and assets into `src/`, normalizes to CRLF, fails on "Not decompiled" stubs, writes `asconfig.json` |
+| `decompiler/unpack.py` | Before stage 1: if the SWF is a packed loader, recovers the chunk order from the zlib stream and writes `<project>/loader/` (game.swf, loader.swf, chunks.json). `cfg.game_swf` is the game to decompile; `cfg.swf` stays the file as given, whose size the client reports |
+| `decompiler/export.py` | Stage 1: unpacks if needed, runs FFDec with raised timeouts, copies scripts and assets into `src/`, normalizes to CRLF, fails on "Not decompiled" stubs, writes `asconfig.json` |
 | `decompiler/names.py` | The reversible renaming scheme: `§...§` tokens become `_o<digits>` |
 | `decompiler/deobfuscate.py` | Stage 2: applies `names.py` to file contents, file names and `[Embed]` paths |
 | `decompiler/fixes.py` | Stage 3: `SOURCE_FIXERS` (text patterns), then `ERROR_FIXERS` (driven by compile errors) in a compile loop |

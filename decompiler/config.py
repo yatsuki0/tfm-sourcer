@@ -28,10 +28,18 @@ class Config:
         self.src = os.path.join(self.project, 'src')
         self.assets = os.path.join(self.src, '_assets')
         self.output = os.path.join(self.project, 'bin', os.path.basename(self.swf))
+        # For a packed SWF: the unpacked game, the original loader and the chunk order (unpack.py).
+        self.loader = os.path.join(self.project, 'loader')
         self.mxmlc = os.path.join(self.flex_sdk, 'bin', 'mxmlc.bat' if os.name == 'nt' else 'mxmlc')
         # Tool output (FFDec, mxmlc) is shown in full unless --quiet asks for a summary.
         self.quiet = False
         self.no_warnings = False
+
+    @property
+    def game_swf(self):
+        """The SWF holding the game's code: the unpacked one for a packed SWF, else cfg.swf."""
+        unpacked = os.path.join(self.loader, 'game.swf')
+        return unpacked if os.path.isfile(unpacked) else self.swf
 
     def require(self, *keys):
         """Stops with a clear message if a configured file doesn't exist."""

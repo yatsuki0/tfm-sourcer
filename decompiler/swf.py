@@ -83,6 +83,10 @@ class Swf:
                 pos = end + 1
         return result
 
+    def binary_data(self):
+        """{character id: data} for each DefineBinaryData tag."""
+        return {struct.unpack_from('<H', data, 0)[0]: data[6:] for code, data in self.tags if code == 87}
+
     def product_info(self):
         data = self.tag(41)
         if not data:
