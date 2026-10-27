@@ -24,7 +24,7 @@ Tested on two clients: version 1.856 (a dumped, already unpacked SWF from 2025-0
 | Bytecode | ABC 46.16, one block of 1.87 MB |
 | Code | 1,263 scripts (including bundled libraries such as `com.bit101`), most with obfuscated names |
 | Assets | 7 embedded binaries (953 KB) and 1 font |
-| Server | `127.0.0.1`, ports 11801, 12801, 13801, 14801 (hard-coded) |
+| Server | Several hard-coded IPs and ports |
 
 ## Key findings
 
