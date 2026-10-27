@@ -15,6 +15,7 @@ FFDec's and the compiler's output is shown in full; --quiet shows a progress lin
 Once the project's src exists, build it with: python build.py [--project PATH]
 """
 import argparse
+import os
 import sys
 
 from decompiler import config, deobfuscate, export, fixes, project, readable, setup_sdk
@@ -67,7 +68,10 @@ def cmd_all(cfg, args):
 
 
 def cmd_info(cfg, args):
-    swf = Swf(args.file or cfg.swf)
+    path = args.file or cfg.swf
+    if not os.path.isfile(path):
+        raise SystemExit('SWF not found: %s' % path)
+    swf = Swf(path)
     print('%s, SWF version %d, %d bytes (%d unpacked)' % (swf.signature, swf.version, swf.file_size, len(swf.body) + 8))
     print('Stage %dx%d, %d fps, background %s' % (swf.width, swf.height, swf.frame_rate, swf.background()))
     info = swf.product_info()

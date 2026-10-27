@@ -31,11 +31,12 @@ Two Python tools. `decompile.py` turns `Transformice.swf` into an editable Actio
 | `decompiler/swf.py` | Minimal SWF reader: header, tags, SymbolClass, ProductInfo, ABC versions |
 | `decompiler/setup_sdk.py` | Downloads and checksum-verifies Flex 4.10 and `playerglobal.swc` 32.0, patches `flex-config.xml` |
 | `decompiler/files.py` | File helpers. Writes and renames retry, because the antivirus briefly locks freshly written files |
+| `tests/` | `unittest` tests, one file per module, on small made-up snippets. Never put real decompiled game code in them |
 | `docs/` | `research.md` (findings for the team lead), `decompiler.md` (stages), `decompiler-fixes.md` (one section per fixer), `debugging.md` |
 
 ## Common changes
 
-**A new decompiler bug that a text pattern can fix.** Add a function `name(text, ctx) -> (text, count)` to `fixes.py`. Its docstring says what FFDec gets wrong and why the fix is safe. Add it to `SOURCE_FIXERS`, then add a `## name` section to `docs/decompiler-fixes.md`. If it's a new kind of mistake, update the count in `docs/research.md`, finding 4.
+**A new decompiler bug that a text pattern can fix.** Add a function `name(text, ctx) -> (text, count)` to `fixes.py`. Its docstring says what FFDec gets wrong and why the fix is safe. Add it to `SOURCE_FIXERS`, add tests to `tests/test_fixes.py`, then add a `## name` section to `docs/decompiler-fixes.md`. If it's a new kind of mistake, update the count in `docs/research.md`, finding 4.
 
 **A bug that only shows as a compile error.** Add a function `name(cfg, error)` that edits `error.file` at `error.line`, and register it in `ERROR_FIXERS` under the exact compiler message. The `fix` loop recompiles until the source builds, or stops on errors no fixer knows.
 
@@ -45,7 +46,9 @@ Two Python tools. `decompile.py` turns `Transformice.swf` into an editable Actio
 
 ## Verify
 
-You need `Transformice.swf` in the repository folder and `python decompile.py setup` done. The SWF isn't in the repo; ask the user if it's missing.
+**Always first:** `python -m unittest`. It runs in under a second and needs no tools or SWF. Every fixer and every readable rule needs a test: one that shows the bug's shape being fixed, and one that shows clean code is left alone.
+
+For the rest you need `Transformice.swf` in the repository folder and `python decompile.py setup` done. The SWF isn't in the repo; ask the user if it's missing.
 
 - **Build only:** `python build.py`. It should end with `Built ...\Transformice.swf (N bytes)` and show about 25 warnings from the original code.
 - **Fix stage on an existing project:** `python decompile.py fix`. Every fixer prints 0, then `Source compiles.`

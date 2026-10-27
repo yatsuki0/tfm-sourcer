@@ -133,6 +133,14 @@ The extension reads `transformice/asconfig.json` directly. This way is set up bu
 
 Open `transformice\bin\Transformice.swf` with the Flash Player 32 projector. For error messages with file and line numbers, build with `--debug` and run `Transformice-debug.swf` in the debug projector, as described in [debugging](docs/debugging.md).
 
+## Tests
+
+```bat
+python -m unittest
+```
+
+These are small unit tests that run in under a second. They need nothing but Python: no FFDec, compiler or game SWF. They check the renaming scheme, each decompiler fix, the readable stage, the SWF reader, and `build.py`'s compiler arguments, all on small made-up snippets. They don't replace a full run (`python decompile.py all --force`) and checking the game in Flash Player.
+
 ## Layout
 
 ```
@@ -140,6 +148,7 @@ decompile.py                      Transformice.swf -> transformice/src
 build.py                          transformice/src -> transformice/bin/Transformice.swf
 decompiler/                       the decompile stages, the SWF reader and the compiler setup
 docs/                             how it works
+tests/                            unit tests (python -m unittest)
 tfm-sourcer.config.example.json   template for your tfm-sourcer.config.json
 
 Not committed:

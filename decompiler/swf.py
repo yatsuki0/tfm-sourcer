@@ -19,7 +19,8 @@ PRODUCTS = {0: 'unknown', 1: 'Macromedia Flex for J2EE', 2: 'Macromedia Flex for
 
 class Swf:
     def __init__(self, path):
-        data = open(path, 'rb').read()
+        with open(path, 'rb') as fh:
+            data = fh.read()
         self.file_size = len(data)
         self.signature = data[:3].decode('ascii')
         self.version = data[3]
